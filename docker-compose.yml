@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:5.0
+    container_name: smart_rental_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: smart-rental
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - smart_rental_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smart_rental_backend
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/smart-rental?authSource=admin
+      JWT_SECRET: your_jwt_secret_key_change_in_production
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+    networks:
+      - smart_rental_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smart_rental_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:5000
+      VITE_STRIPE_PUBLIC_KEY: ${VITE_STRIPE_PUBLIC_KEY}
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+    networks:
+      - smart_rental_network
+
+volumes:
+  mongo_data:
+
+networks:
+  smart_rental_network:
+    driver: bridge
