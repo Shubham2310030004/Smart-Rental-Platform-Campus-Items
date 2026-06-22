@@ -353,9 +353,6 @@ We welcome contributions! Please follow these steps:
 
 For support, email support@smartrentalcampus.com or create an issue on GitHub.
 
-## License
-
-This project is licensed under the MIT License - see LICENSE file for details.
 
 ## Author
 
